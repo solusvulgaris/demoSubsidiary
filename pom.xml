@@ -15,6 +15,7 @@
 	<description>Subsidiaries Demo Application</description>
 	<properties>
 		<java.version>11</java.version>
+		<maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -29,16 +30,35 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<!-- built-in database  - start -->
+		<!-- -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- -->
+		 <!-- built-in database  - end -->
+		<!-- postgresql in docker - start -->
+		<!--
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		 -->
+		<!-- postgresql in docker - end -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -47,6 +67,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.plugin.version}</version>
+				<configuration>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

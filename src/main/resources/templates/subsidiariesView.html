@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  </style>
+  <title>Subsidiaries list</title>
+</head>
+<body>
+<h1>Welcome to the Subsidiaries List Page!</h1>
+<p th:text="${typeString}!=null?'Subsidiaries loaded from th ' + ${typeString} + ' source file:' : ''"/>
+<table>
+  <tr>
+    <td>Code</td>
+    <td>Name</td>
+    <td>Address</td>
+    <td>Phone</td>
+  </tr>
+  <tr th:each="Subsidiary: ${subsidiariesList}">
+    <td th:text="${Subsidiary.innerCode}">Code</td>
+    <td th:text="${Subsidiary.name}">Name</td>
+    <td th:text="${Subsidiary.address}">Address</td>
+    <td th:text="${Subsidiary.phoneNumber}">Phone</td>
+  </tr>
+</table>
+</body>
+</html>
