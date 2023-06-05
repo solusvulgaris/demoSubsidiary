@@ -30,8 +30,7 @@ public class WebserviceController {
     /**
      * Get Subsidiaries
      *
-     * @param innerCode subsidiary innerCode
-     *                  //?innerCode=value
+     * @param innerCode subsidiary innerCode   //?innerCode=value
      * @return list of requested subsidiaries.
      */
     @GetMapping(path = "/subs")

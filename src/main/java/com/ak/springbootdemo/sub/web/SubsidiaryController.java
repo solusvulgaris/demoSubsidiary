@@ -39,7 +39,7 @@ public class SubsidiaryController {
     public String getSubsidiaries(@RequestParam(value = "type", required = false) String sourceType, Model model)
             throws SubsidiaryControllerException {
         model.addAttribute("sourceType", sourceType);
-        model.addAttribute("subsidiaries", subsidiaryService.getSubsidiaries(sourceType));
+        model.addAttribute("subsidiaries", subsidiaryService.getSubsidiariesFromExternalSource(sourceType));
         return "subsidiariesView";
     }
 

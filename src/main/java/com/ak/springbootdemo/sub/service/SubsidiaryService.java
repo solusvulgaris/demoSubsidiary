@@ -8,6 +8,7 @@ import com.ak.springbootdemo.sub.exceptions.SubsidiaryServiceException;
 import com.ak.springbootdemo.sub.util.JSONReader;
 import com.ak.springbootdemo.sub.util.Reader;
 import com.ak.springbootdemo.sub.util.SubsidiaryDTO;
+import com.ak.springbootdemo.sub.util.XMLReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,39 +47,46 @@ public class SubsidiaryService {
     }
 
     /**
-     * Get Subsidiaries from various sourceTypes.
+     * Get Subsidiaries from various sourceTypes and save to DB.
      *
-     * @return List of SubsidiaryDTOs sorted by name -> innerCode
+     * @param sourceType source type string
+     * @return List of sorted SubsidiaryDTOs
      */
-    public List<SubsidiaryDTO> getSubsidiaries(String sourceType) {
+    public List<SubsidiaryDTO> getSubsidiariesFromExternalSource(String sourceType) {
         if (sourceType == null) {
             return getSubsidiaries().stream().map(Subsidiary::toDTO).collect(Collectors.toList());
         } else {
-            List<SubsidiaryDTO> subsidiaryDTOs;
-            Reader reader = null;
             switch (SourceType.getSourceType(sourceType).orElse(SourceType.UNDEFINED)) {
                 case JSON:
-                    reader = new JSONReader(JSON_FILE);
-                    break;
+                    return getSubsidiariesFromExternalSource(new JSONReader(JSON_FILE));
                 case XML:
-                    //TODO: implement reading from xml
-                    break;
+                    return getSubsidiariesFromExternalSource(new XMLReader(XML_FILE));
                 case UNDEFINED:
                     throw new SubsidiaryControllerException(String.format("Unknown source type value: '%s'.", sourceType));
                 default:
-                    break;
+                    return new ArrayList<>();
             }
-
-            assert reader != null;
-            subsidiaryDTOs = reader.getSubsidiaries();
-            saveToDB(subsidiaryDTOs);
-            return subsidiaryDTOs;
         }
     }
 
     /**
+     * Get Subsidiaries from various sourceTypes and save to DB.
+     *
+     * @param reader for appropriate source type
+     * @return List of sorted SubsidiaryDTOs
+     */
+    protected List<SubsidiaryDTO> getSubsidiariesFromExternalSource(Reader reader) {
+        List<SubsidiaryDTO> subsidiaries = reader.getSubsidiaries();
+        Collections.sort(subsidiaries);
+        saveToDB(subsidiaries);
+        return subsidiaries;
+    }
+
+
+    /**
      * Get Subsidiary by InnerCode from DB.
      *
+     * @param innerCode by which it is needed to find the Subsidiary
      * @return Subsidiary if exist or empty
      */
     public Optional<Subsidiary> getSubsidiariesByInnerCode(String innerCode) {
@@ -88,10 +96,10 @@ public class SubsidiaryService {
     /**
      * Create or Update Subsidiary entity
      *
-     * @param innerCode   unique inner code of the subsidiary
-     * @param address     subsidiary address
-     * @param name        subsidiary name
-     * @param phoneNumber subsidiary phoneNumber
+     * @param innerCode   unique inner code of the Subsidiary
+     * @param address     Subsidiary address
+     * @param name        Subsidiary name
+     * @param phoneNumber Subsidiary phoneNumber
      * @return Created or Updated Subsidiary entity
      */
     public Subsidiary saveSubsidiary(String innerCode, String address, String name, String phoneNumber) {
@@ -101,7 +109,7 @@ public class SubsidiaryService {
     }
 
     /**
-     * Find Subsidiary by inner code.
+     * Add new Subsidiary into DB.
      *
      * @param subsidiary Subsidiary entity that have to be added into DB
      * @return Subsidiary entity that was added into DB
@@ -120,7 +128,6 @@ public class SubsidiaryService {
      * @subsidiaryDTOList subsidiaries list to save
      */
     protected void saveToDB(List<SubsidiaryDTO> subsidiaryDTOList) {
-        //TODO: check if null
         subsidiaryDTOList.forEach(importedSubsidiary ->
                 saveSubsidiary(
                         importedSubsidiary.getInnerCode(),
