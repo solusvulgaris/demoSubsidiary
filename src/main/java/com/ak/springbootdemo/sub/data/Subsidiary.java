@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "SUBSIDIARY")
-public class Subsidiary {
+public class Subsidiary implements Comparable<Subsidiary> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //is OK for H2
     @Column(name = "SUBSIDIARY_ID")
@@ -116,6 +116,16 @@ public class Subsidiary {
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getInnerCode(), getAddress(), getName(), getPhoneNumber());
+    }
+
+    @Override
+    public int compareTo(Subsidiary that) {
+        if (this.equals(that)) return 0;
+
+        if (this.getName().equals(that.getName())) {
+            return this.getInnerCode().compareTo(that.getInnerCode());
+        }
+        return this.getName().compareTo(that.getName());
     }
 
 }
