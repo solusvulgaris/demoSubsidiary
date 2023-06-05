@@ -37,9 +37,9 @@ public class WebserviceController {
     @GetMapping(path = "/subs")
     public List<Subsidiary> getSubsidiariesByCode(@RequestParam(value = "innerCode", required = false) String innerCode) {
         if (innerCode == null) {
-            return this.subsidiaryService.getSubsidiaries();
+            return subsidiaryService.getSubsidiaries();
         } else {
-            return Collections.singletonList(this.subsidiaryService.getSubsidiariesByInnerCode(innerCode).orElse(null));
+            return Collections.singletonList(subsidiaryService.getSubsidiariesByInnerCode(innerCode).orElse(null));
         }
     }
 
