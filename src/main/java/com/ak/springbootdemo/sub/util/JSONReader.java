@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
@@ -27,7 +26,6 @@ public class JSONReader implements Reader {
             subsidiariesFromJSON = new ObjectMapper().setVisibility(FIELD, ANY)
                     .readValue(resourceAsStream, new TypeReference<>() {
                     });
-            Collections.sort(subsidiariesFromJSON);
         } catch (IOException e) {
             throw new SubsidiaryControllerException("Unable get subsidiaries list from json file.");
         }
