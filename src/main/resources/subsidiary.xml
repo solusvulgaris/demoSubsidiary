@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<subsidiaries>
+    <subsidiary>
+        <name>1st loaded XML Sub</name>
+        <address>XML 1</address>
+        <innerCode>XSF</innerCode>
+        <phoneNumber>000-000-031</phoneNumber>
+    </subsidiary>
+    <subsidiary>
+        <name>2st loaded XML Sub</name>
+        <address>XML 2</address>
+        <innerCode>XSS</innerCode>
+        <phoneNumber>000-000-032</phoneNumber>
+    </subsidiary>
+</subsidiaries>
