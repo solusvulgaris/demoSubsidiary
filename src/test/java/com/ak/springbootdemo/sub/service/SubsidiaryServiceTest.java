@@ -22,15 +22,17 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("SubsidiaryService tests")
 class SubsidiaryServiceTest {
-    final static SubsidiaryRepository subsidiaryRepository = Mockito.mock(SubsidiaryRepository.class);
-    final SubsidiaryService subsidiaryService = new SubsidiaryService(subsidiaryRepository);
+    static final String INNER_CODE = "VS";
+    static final String ADDRESS = "Test";
+    static final String PHONE = "111-111-111";
+
+    static final SubsidiaryRepository subsidiaryRepository = Mockito.mock(SubsidiaryRepository.class);
+    static final SubsidiaryService subsidiaryService = new SubsidiaryService(subsidiaryRepository);
+
     static final Subsidiary validSubsidiaryExample = new Subsidiary(
-            "VS","Test", "Test Valid Subsidiary", "111-111-111");
-    final Subsidiary updatedSubsidiaryExample = new Subsidiary(
-            validSubsidiaryExample.getInnerCode(),
-            validSubsidiaryExample.getAddress(),
-            "Updated Test Valid Subsidiary",
-            validSubsidiaryExample.getPhoneNumber());
+            INNER_CODE, ADDRESS, "Test Valid Subsidiary", PHONE);
+    static final Subsidiary updatedSubsidiaryExample = new Subsidiary(
+            INNER_CODE, ADDRESS, "Updated Test Valid Subsidiary", PHONE);
 
     @BeforeAll
     static void setUpAll() {
@@ -39,7 +41,7 @@ class SubsidiaryServiceTest {
 
     public static Stream<Arguments> createSubsidiaryInputParams() {
         return Stream.of(
-                Arguments.of("Subsidiary exist - update case", true ),
+                Arguments.of("Subsidiary exist - update case", true),
                 Arguments.of("No existing Subsidiary - create new case", false)
         );
     }

@@ -1,23 +1,21 @@
 package com.ak.springbootdemo.sub.service;
 
+import com.ak.springbootdemo.sub.constants.SourceType;
 import com.ak.springbootdemo.sub.data.Subsidiary;
 import com.ak.springbootdemo.sub.data.SubsidiaryRepository;
 import com.ak.springbootdemo.sub.exceptions.SubsidiaryControllerException;
 import com.ak.springbootdemo.sub.exceptions.SubsidiaryServiceException;
+import com.ak.springbootdemo.sub.util.JSONReader;
+import com.ak.springbootdemo.sub.util.Reader;
 import com.ak.springbootdemo.sub.util.SubsidiaryDTO;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
+import java.util.stream.Collectors;
 
 /**
  * Subsidiary Service
@@ -25,6 +23,8 @@ import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 @Service
 public class SubsidiaryService {
     static final String JSON_FILE = "subsidiary.json";
+    static final String XML_FILE = "subsidiary.xml";
+
     private final SubsidiaryRepository subsidiaryRepository;
 
     @Autowired
@@ -35,22 +35,45 @@ public class SubsidiaryService {
     /**
      * Get all Subsidiaries from DB.
      *
-     * @return List of Subsidiaries sorted by name -> innerCode
+     * @return List of sorted Subsidiaries
      */
     public List<Subsidiary> getSubsidiaries() {
-        Iterable<Subsidiary> subsidiaries = this.subsidiaryRepository.findAll();
+        Iterable<Subsidiary> subsidiaries = subsidiaryRepository.findAll();
         List<Subsidiary> subsidiariesList = new ArrayList<>();
         subsidiaries.forEach(subsidiariesList::add);
-
-        subsidiariesList.sort(
-                (o1, o2) -> {
-                    if (o1.getName().equals(o2.getName())) {
-                        return o1.getInnerCode().compareTo(o2.getInnerCode());
-                    }
-                    return o1.getName().compareTo(o2.getName());
-                });
-
+        Collections.sort(subsidiariesList);
         return subsidiariesList;
+    }
+
+    /**
+     * Get Subsidiaries from various sourceTypes.
+     *
+     * @return List of SubsidiaryDTOs sorted by name -> innerCode
+     */
+    public List<SubsidiaryDTO> getSubsidiaries(String sourceType) {
+        if (sourceType == null) {
+            return getSubsidiaries().stream().map(Subsidiary::toDTO).collect(Collectors.toList());
+        } else {
+            List<SubsidiaryDTO> subsidiaryDTOs;
+            Reader reader = null;
+            switch (SourceType.getSourceType(sourceType).orElse(SourceType.UNDEFINED)) {
+                case JSON:
+                    reader = new JSONReader(JSON_FILE);
+                    break;
+                case XML:
+                    //TODO: implement reading from xml
+                    break;
+                case UNDEFINED:
+                    throw new SubsidiaryControllerException(String.format("Unknown source type value: '%s'.", sourceType));
+                default:
+                    break;
+            }
+
+            assert reader != null;
+            subsidiaryDTOs = reader.getSubsidiaries();
+            saveToDB(subsidiaryDTOs);
+            return subsidiaryDTOs;
+        }
     }
 
     /**
@@ -83,7 +106,7 @@ public class SubsidiaryService {
      * @param subsidiary Subsidiary entity that have to be added into DB
      * @return Subsidiary entity that was added into DB
      */
-    public Subsidiary addSubsidiary(Subsidiary subsidiary) {
+    protected Subsidiary addSubsidiary(Subsidiary subsidiary) {
         if (null == subsidiary) {
             throw new SubsidiaryServiceException("Subsidiary cannot be null.");
         }
@@ -92,26 +115,17 @@ public class SubsidiaryService {
     }
 
     /**
-     * Read and save Subsidiary entities from an external JSON file into DB
+     * Save Subsidiary entities into DB
      *
-     * @return subsidiaries list from json file
+     * @subsidiaryDTOList subsidiaries list to save
      */
-    public List<SubsidiaryDTO> saveSubsidiariesFromJSONFile() throws SubsidiaryControllerException {
-        List<SubsidiaryDTO> jsonSubsidiaryList;
-        try (final InputStream resourceAsStream = SubsidiaryService.class.getClassLoader().getResourceAsStream(JSON_FILE)) {
-            jsonSubsidiaryList = new ObjectMapper().setVisibility(FIELD, ANY)
-                    .readValue(resourceAsStream, new TypeReference<>() {
-                    });
-            jsonSubsidiaryList.forEach(importedSubsidiary ->
-                    saveSubsidiary(
-                            importedSubsidiary.getInnerCode(),
-                            importedSubsidiary.getAddress(),
-                            importedSubsidiary.getName(),
-                            importedSubsidiary.getPhoneNumber()));
-
-        } catch (IOException e) {
-            throw new SubsidiaryControllerException("Unable get subsidiaries list from json file.");
-        }
-        return jsonSubsidiaryList;
+    protected void saveToDB(List<SubsidiaryDTO> subsidiaryDTOList) {
+        //TODO: check if null
+        subsidiaryDTOList.forEach(importedSubsidiary ->
+                saveSubsidiary(
+                        importedSubsidiary.getInnerCode(),
+                        importedSubsidiary.getAddress(),
+                        importedSubsidiary.getName(),
+                        importedSubsidiary.getPhoneNumber()));
     }
 }

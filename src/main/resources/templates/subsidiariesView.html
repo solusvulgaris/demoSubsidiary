@@ -20,7 +20,7 @@
     <td>Address</td>
     <td>Phone</td>
   </tr>
-  <tr th:each="Subsidiary: ${subsidiariesList}">
+  <tr th:each="Subsidiary: ${subsidiaries}">
     <td th:text="${Subsidiary.innerCode}">Code</td>
     <td th:text="${Subsidiary.name}">Name</td>
     <td th:text="${Subsidiary.address}">Address</td>
