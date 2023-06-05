@@ -1,5 +1,7 @@
 package com.ak.springbootdemo.sub.data;
 
+import com.ak.springbootdemo.sub.util.SubsidiaryDTO;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -88,6 +90,10 @@ public class Subsidiary implements Comparable<Subsidiary> {
         this.address = address;
         this.name = name;
         this.phoneNumber = phoneNumber;
+    }
+
+    public SubsidiaryDTO toDTO() {
+        return new SubsidiaryDTO(this.innerCode, this.address, this.name, this.phoneNumber);
     }
 
     @Override
